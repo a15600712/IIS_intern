@@ -4,7 +4,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-#define LENGTH 8
+#define LENGTH 64
 
 void leftshift(bool *source, int shift)
 {
@@ -66,7 +66,7 @@ step(v, r, f0, g0);
 void step(bool f[], bool g[], bool f0, bool g0)
 {
     bool tmp[LENGTH] = {0};
-    for (int i = 0; i < LENGTH - 1; i++)
+    for (int i = 0; i < LENGTH; i++)
     {
         tmp[i] = (f0 & g[i]) ^ (g0 & f[i]);
     }
@@ -105,8 +105,10 @@ void printarr(bool arr[])
 
 int main()
 {
-    bool g[LENGTH] = {1, 0, 0, 0, 0, 1, 1, 0};
-    // bool g[LENGTH] = {0, 1, 0, 1, 1, 0, 0, 0};
+    bool g[LENGTH] = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1};
 
     bool f[LENGTH] = {0};
     bool u[LENGTH] = {0};
@@ -114,15 +116,12 @@ int main()
     bool q[LENGTH] = {0};
     bool r[LENGTH] = {0};
     f[0]           = 1;
-    // f[1]           = 1;
-    // f[2]           = 1;
-
-    f[LENGTH - 1] = 1;
-    u[0]          = 1;
-    r[0]          = 1;
-    int delta     = caldelta(f, g);
-    bool s        = false;
-    for (int i = 1; i <= (2 * 7) - 1; i++)
+    f[LENGTH - 1]  = 1;
+    u[0]           = 1;
+    r[0]           = 1;
+    int delta      = caldelta(f, g);
+    bool s         = false;
+    for (int i = 1; i <= 62; i++)
     {
         s = (delta > 0 && g[0] != 0);
 
@@ -144,27 +143,35 @@ int main()
         rightshift(u, 1);
         rightshift(v, 1);
 
-        printf("%d:\n%d\n", i, delta);
-        printf("u:");
-        printarr(u);
-        printf("v:");
-        printarr(v);
-        printf("q:");
-        printarr(q);
-        printf("r:");
-        printarr(r);
-
-        printf("f:");
-        printarr(f);
-        printf("g:");
-        printarr(g);
+        // printf("%d:\n%d\n", i, delta);
+        // printf("u:");
+        // printarr(u);
+        // printf("v:");
+        // printarr(v);
+        // printf("q:");
+        // printarr(q);
+        // printf("r:");
+        // printarr(r);
     }
-    for (int i = 0; i < LENGTH; i++)
-    {
-        if (v[i] == 1)
-        {
-            printf("x^%d + ", LENGTH - 1 - i);
-        }
-    }
+    // printf("delta:%d\n", delta);
+    // printf("f:");
+    // printarr(f);
+    // printf("g:");
+    // printarr(g);
+    printf("u:");
+    printarr(u);
+    printf("v:");
+    printarr(v);
+    printf("q:");
+    printarr(q);
+    printf("r:");
+    printarr(r);
+    // for (int i = 0; i < LENGTH; i++)
+    // {
+    //     if (v[i] == 1)
+    //     {
+    //         printf("x^%d + ", LENGTH - i - 1);
+    //     }
+    // }
     printf("\n");
 }

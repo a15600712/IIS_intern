@@ -58,17 +58,22 @@ int main()
     ori_f = f;
     g     = x62x61x60x_1;  // reverse order
     ori_g = g;
-    u     = 0x0000000000000001;
-    v     = 0x0000000000000000;
-    q     = 0x0000000000000000;
-    r     = 0x0000000000000001;
+
+    u = 0x0000000000000001;
+    v = 0x0000000000000000;
+    q = 0x0000000000000000;
+    r = 0x0000000000000001;
+
+    int n = 2 * 63 - 1;
+    int j = n / 2;
+    printf("j:%d\n", j);
+    int k = n - j;
+    printf("k:%d\n", k);
 
     poly64_t swap = 0x0000000000000000;
     int64_t delta = caldelta(f, g);
-    int j, k;
-    j = (2 * 63 - 1) / 2;
-    k = (2 * 63 - 1) - j;
-    for (int i = 0; i < j; i++)
+    int i         = 0;
+    for (i = 1; i <= j; i++)
     {
         swap          = (delta > 0 && (g & 0x0000000000000001)) ? -1 : 0;
         delta         = delta ^ ((delta ^ (-delta)) & swap);
@@ -92,37 +97,38 @@ int main()
         u           = u << 1;
         v           = v << 1;
     }
-    poly64_t new_f, new_g;
-    ori_f = ori_f >> j;
-    ori_g = ori_g >> j;
-    struct Matrix M1;
-    M1.u = u;
-    M1.q = q;
-    M1.r = r;
-    M1.v = v;
+    printf("u:%llu\n", u);
+    printf("v:%llu\n", v);
+    printf("q:%llu\n", q);
+    printf("r:%llu\n", r);
+    struct Matrix m1;
 
-    // printbinary(u, 'u');
-    // printbinary(f, 'f');
-    poly64_t tmp1 = (uint64_t)u * (uint64_t)f;
-    // printbinary(tmp1, '1');
-    poly64_t tmp2 = (uint64_t)v * (uint64_t)g;
+    m1.u            = u;
+    m1.v            = v;
+    m1.q            = q;
+    m1.r            = r;
+    poly64_t ori_fh = ori_f >> j;
+    poly64_t ori_gh = ori_g >> j;
+    printf("f:%llu\n", ori_fh);
+    printf("g:%llu\n", ori_gh);
+    // printf("f:%llu\n", f);
+    // printf("g:%llu\n", g);
 
-    new_f = tmp1 + tmp2 + f;
-    // tmp1  = vmull_p64(q, f);
-    // tmp2  = vmull_p64(r, g);
-    tmp1  = (uint64_t)q * (uint64_t)f;
-    tmp2  = (uint64_t)r * (uint64_t)g;
-    new_g = tmp1 + tmp2 + g;
+    poly64_t new_f = (poly64_t)(vmull_p64(u, ori_fh) ^ vmull_p64(v, ori_gh));
+    poly64_t new_g = (poly64_t)(vmull_p64(q, ori_fh) ^ vmull_p64(r, ori_gh));
+    printf("f:%llu\n", new_f);
+    printf("g:%llu\n", new_g);
+    new_f = new_f ^ f;
+    new_g = new_g ^ g;
 
-    printbinary(new_f, 'f');
-    printbinary(new_g, 'g');
     u = 0x0000000000000001;
     v = 0x0000000000000000;
     q = 0x0000000000000000;
     r = 0x0000000000000001;
-    for (int i = 0; i < k; i++)
+
+    for (i = 1; i <= k; i++)
     {
-        swap          = (delta > 0 && (g & 0x0000000000000001)) ? -1 : 0;
+        swap          = (delta > 0 && (new_g & 0x0000000000000001)) ? -1 : 0;
         delta         = delta ^ ((delta ^ (-delta)) & swap);
         poly64_t mask = (new_f ^ new_g) & swap;
         new_f         = new_f ^ mask;
@@ -144,4 +150,9 @@ int main()
         u               = u << 1;
         v               = v << 1;
     }
+    // printbinary(new_f, 'f');
+    // printbinary(new_g, 'g');
+    // printf("%d\n", delta);
+    poly64_t result = vmull_p64(m1.u, v) + vmull_p64(m1.v, r);
+    // printoriginalorder(result, 'v');
 }
