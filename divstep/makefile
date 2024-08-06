@@ -28,6 +28,10 @@ jump_poly64:
 	gcc -o jump_poly64divstep jump_poly64divstep.o
 	./jump_poly64divstep
 
+jump_poly64x2:
+	gcc -c jump_poly64x2divstep.c -march=armv8-a+crypto
+	gcc -o jump_poly64x2divstep jump_poly64x2divstep.o
+	./jump_poly64x2divstep
 
 clean:
 	rm -rf poly8_divstep poly8_divstep.o poly64_divstep poly64_divstep.o poly128_divstep poly128_divstep.o own_divstep own_divstep.o
