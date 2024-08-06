@@ -12,7 +12,7 @@ own:
 
 
 poly64:
-	gcc -c poly64_divstep.c
+	gcc -c poly64_divstep.c -march=armv8-a+crypto
 	gcc -o poly64_divstep poly64_divstep.o
 	rm -rf poly64_divstep.o
 	./poly64_divstep

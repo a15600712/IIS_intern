@@ -49,7 +49,9 @@ void printoriginalorder(const poly64_t s, const char ch)
 int main()
 {
     poly64_t f, g, u, v, q, r;
-    f = x63_1;         // reverse order
+    f = x63_1;  // reverse order
+    f = f & 0x7FFFFFFFFFFFFFFF;
+    g = g & 0x7FFFFFFFFFFFFFFF;
     g = x62x61x60x_1;  // reverse order
     u = 0x0000000000000001;
     v = 0x0000000000000000;
@@ -57,9 +59,9 @@ int main()
     r = 0x0000000000000001;
 
     poly64_t swap = 0x0000000000000000;
-    int64_t delta = caldelta(f, g);
+    int64_t delta = 1;
     int i         = 0;
-    for (i = 1; i <= (2 * 63) - 1; i++)
+    for (i = 1; i <= /*(2 * 63) - 1*/ 62; i++)
     {
         swap          = (delta > 0 && (g & 0x0000000000000001)) ? -1 : 0;
         delta         = delta ^ ((delta ^ (-delta)) & swap);
@@ -83,6 +85,9 @@ int main()
         u           = u << 1;
         v           = v << 1;
     }
-    printoriginalorder(v, 'v');
-    printf("v(reverse in hex):%llx=%llx?\n%d\n", v, inv_ans, v == inv_ans);
+    printbinary(u, 'u');
+    printbinary(v, 'v');
+    printbinary(q, 'q');
+    printbinary(r, 'r');
+    // printf("v(reverse in hex):%llx=%llx?\n%d\n", v, inv_ans, v == inv_ans);
 }

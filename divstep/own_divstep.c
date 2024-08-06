@@ -121,7 +121,7 @@ int main()
     r[0]           = 1;
     int delta      = caldelta(f, g);
     bool s         = false;
-    for (int i = 1; i <= 62; i++)
+    for (int i = 1; i <= 64; i++)
     {
         s = (delta > 0 && g[0] != 0);
 

@@ -1,166 +1,85 @@
-#include "math.h"
-#include "stdbool.h"
-#include "stdint.h"
-#include "stdio.h"
-#include "stdlib.h"
+#include <arm_neon.h>
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#define LENGTH 5
+#define x63_1 0x8000000000000001
+#define x62x61x60x_1 0x6000000000000007
+#define inv_ans 0x4A5294A5294A5294
 
-void leftshift(bool *source, int shift)
-{
-	int tmp[LENGTH] = { 0 };
-	for (int i = 0; i < LENGTH; i++)
-	{
-		if (i + shift <= LENGTH - 1)
-		{
-			source[i] = source[i + shift];
-		}
-		else
-		{
-			source[i] = 0;
-		}
-	}
+int degree(const poly64_t a) { return 63 - __builtin_clzll(a); }
+
+int caldelta(const poly64_t f, const poly64_t g) {
+  return degree(f) - degree(g);
 }
 
-void rightshift(bool *source, int shift)
-{
-	int tmp[LENGTH] = { 0 };
-	for (int i = LENGTH - 1; i >= 0; i--)
-	{
-		if (i - shift >= 0)
-		{
-			source[i] = source[i - shift];
-		}
-		else
-		{
-			source[i] = 0;
-		}
-	}
+void printbinary(const poly64_t s, const char ch) {
+  printf("%c:", ch);
+  poly64_t tmp = 0x8000000000000000;
+  for (int i = 63; i >= 0; i--) {
+    // printf("%d", (tmp & s) >> i);
+    if ((tmp & s) >> i)
+      printf("x^%d+ ", i);
+    tmp = tmp >> 1;
+  }
+  printf("\n");
 }
 
-int caldelta(bool f[], bool g[])
-{
-	int f_degree = 0;
-	for (int i = LENGTH - 1; i >= 0; i--)
-	{
-		if (f[i] == 1)
-		{
-			f_degree = i;
-			break;
-		}
-	}
-	for (int i = LENGTH - 1; i >= 0; i--)
-	{
-		if (g[i] == 1)
-		{
-			return f_degree - i;
-		}
-	}
+void printoriginalorder(const poly64_t s, const char ch) {
+  printf("%c:", ch);
+  poly64_t tmp = 0x8000000000000000;
+  for (int i = 63; i >= 0; i--) {
+    // printf("%d", (tmp & s) >> i);
+    if ((tmp & s) >> i)
+      printf("x^%d+ ", 63 - i);
+    tmp = tmp >> 1;
+  }
+  printf("\n");
 }
 
-void step(bool f[], bool g[], bool f0, bool g0)
-{
-	bool tmp[LENGTH] = { 0 };
-	for (int i = 0; i < LENGTH - 1; i++)
-	{
-		tmp[i] = (f0 & g[i]) ^ (g0 & f[i]);
-	}
+int main() {
+  poly64_t f, g, u, v, q, r;
+  f = x63_1;        // reverse order
+  g = x62x61x60x_1; // reverse order
+  u = 0x0000000000000001;
+  v = 0x0000000000000000;
+  q = 0x0000000000000000;
+  r = 0x0000000000000001;
 
-	for (int i = 0; i < LENGTH - 1; i++)
-	{
-		g[i] = tmp[i];
-	}
-}
+  poly64_t swap = 0x0000000000000000;
+  int64_t delta = caldelta(f, g);
+  int i = 0;
+  for (i = 1; i <= /* (2 * 63) - 1*/ 62; i++) {
+    swap = (delta > 0 && (g & 0x0000000000000001)) ? -1 : 0;
+    delta = delta ^ ((delta ^ (-delta)) & swap);
+    poly64_t mask = (f ^ g) & swap;
+    f = f ^ mask;
+    g = g ^ mask;
+    mask = (q ^ u) & swap;
+    q = q ^ mask;
+    u = u ^ mask;
+    mask = (r ^ v) & swap;
+    v = v ^ mask;
+    r = r ^ mask;
 
-void swap(bool f[], bool g[], bool s)
-{
-	bool msk[LENGTH] = { 0 };
-	for (int i = 0; i < LENGTH; i++)
-	{
-		msk[i] = (f[i] ^ g[i]) & s;
-	}
-	for (int i = 0; i < LENGTH; i++)
-	{
-		f[i] = (f[i] ^ msk[i]);
-	}
-	for (int i = 0; i < LENGTH; i++)
-	{
-		g[i] = (g[i] ^ msk[i]);
-	}
-}
+    delta += 1;
+    poly64_t f0 = (f & 0x0000000000000001) ? -1 : 0;
+    poly64_t g0 = (g & 0x0000000000000001) ? -1 : 0;
+    g = (f0 & g) ^ (g0 & f);
+    g = g >> 1;
+    q = (f0 & q) ^ (g0 & u);
+    r = (f0 & r) ^ (g0 & v);
+    u = u << 1;
+    v = v << 1;
+  }
 
-void printarr(bool arr[])
-{
-	printf("\n------------------------\n");
-	for (int i = 0; i < LENGTH; i++)
-	{
-		printf("%d ", arr[i]);
-	}
-	printf("\n------------------------\n");
-}
-
-int main()
-{
-	bool g[LENGTH] = { 1, 0, 0, 0, 0 };
-
-	bool f[LENGTH] = { 0 };
-	bool u[LENGTH] = { 0 };
-	bool v[LENGTH] = { 0 };
-	bool q[LENGTH] = { 0 };
-	bool r[LENGTH] = { 0 };
-	//
-	f[0] = 1;
-	// f[1]          = 0;
-	// f[LENGTH - 1] = 1;
-	u[0] = 1;
-	r[0] = 1;
-	//
-	int delta = caldelta(f, g);
-	printf("%d\n", delta);
-	bool s = false;
-	for (int i = 0; i < 3; i++)
-	{
-		s = (delta > 0 && g[0] != 0);
-
-		swap(f, g, s);
-
-		swap(q, u, s);
-
-		swap(v, r, s);
-
-		int intswap = (int)s;
-		delta       = delta ^ ((delta ^ (-delta)) & -intswap);
-		delta += 1;
-		bool f0 = f[0];
-		bool g0 = g[0];
-		step(f, g, f0, g0);
-		leftshift(g, 1);
-		step(u, q, f0, g0);
-		step(v, r, f0, g0);
-		rightshift(u, 1);
-		rightshift(v, 1);
-
-		printf("\n%d-----------\n", i);
-		printf("u:");
-		printarr(u);
-		printf("v:");
-		printarr(v);
-		printf("q:");
-		printarr(q);
-		printf("r:");
-		printarr(r);
-
-		printf("f:");
-		printarr(f);
-		printf("g:");
-		printarr(g);
-	}
-	for (int i = 0; i < LENGTH; i++)
-	{
-		if (v[i] == 1)
-		{
-			printf("x^%d + ", LENGTH - 1 - i);
-		}
-	}
-	printf("\n");
+  printbinary(u, 'u');
+  printbinary(v, 'v');
+  printbinary(q, 'q');
+  printbinary(r, 'r');
+  printbinary(f, 'f');
+  printbinary(g, 'g');
+  // printoriginalorder(v, 'v');
+  // printf("v(reverse in hex):%llx=%llx?\n%d\n", v, inv_ans, v == inv_ans);
 }
