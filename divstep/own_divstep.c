@@ -121,7 +121,7 @@ int main()
     r[0]           = 1;
     int delta      = caldelta(f, g);
     bool s         = false;
-    for (int i = 1; i <= 64; i++)
+    for (int i = 1; i <= 2 * (LENGTH - 1) - 1; i++)
     {
         s = (delta > 0 && g[0] != 0);
 
@@ -157,21 +157,21 @@ int main()
     // printf("f:");
     // printarr(f);
     // printf("g:");
-    // printarr(g);
-    printf("u:");
-    printarr(u);
-    printf("v:");
-    printarr(v);
-    printf("q:");
-    printarr(q);
-    printf("r:");
-    printarr(r);
-    // for (int i = 0; i < LENGTH; i++)
-    // {
-    //     if (v[i] == 1)
-    //     {
-    //         printf("x^%d + ", LENGTH - i - 1);
-    //     }
-    // }
+    // // printarr(g);
+    // printf("u:");
+    // printarr(u);
+    // printf("v:");
+    // printarr(v);
+    // printf("q:");
+    // printarr(q);
+    // printf("r:");
+    // printarr(r);
+    for (int i = 0; i < LENGTH; i++)
+    {
+        if (v[i] == 1)
+        {
+            printf("x^%d + ", LENGTH - i - 1);
+        }
+    }
     printf("\n");
 }
