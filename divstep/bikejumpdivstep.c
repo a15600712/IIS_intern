@@ -27,6 +27,25 @@ void printx(poly64_t *s)
     printf("\n");
 }
 
+void GetnLSB(poly64_t *s, int size, int n)
+{
+    poly64_t tmp[193];
+    for (int i = 0; i < 193; i++)
+    {
+        tmp[i] = 0xFFFFFFFFFFFFFFFF;
+    }
+    rightshift(tmp, 12352 - n);
+    for (int i = 0; i < 193; i++)
+    {
+        s[i] = s[i] & tmp[i];
+    }
+    for (int i = 192; i >= 0; i++)
+    {
+        printf("%llx ", s[i]);
+    }
+    printf("\n");
+}
+
 void rightshift(poly64_t *s, int n)
 {
     for (int j = 0; j < n; j++)
@@ -122,7 +141,11 @@ int main()
     poly64_t swap      = zero;
     int64_t delta      = 1;
     poly64_t mask[193] = {zero};
-    for (int i = 0; i < 2 * 12323 - 1; i++)
+    printf("Before:\n");
+    printarr(f, 193);
+    printarr(g, 193);
+
+    for (int i = 0; i < 12323; i++)
     {
         swapchk(&swap, delta, g[0]);
 
@@ -151,10 +174,7 @@ int main()
         leftshift(u, 1);
         leftshift(v, 1);
     }
-    printx(f);
-    printx(g);
-    printx(v);
-    // leftshift(u, 10);
-    // printarr(f, 193);
-    // printarr(g, 193);
+    printf("After:\n");
+    printarr(f, 193);
+    printarr(g, 193);
 }
